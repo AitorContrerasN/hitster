@@ -21,15 +21,15 @@ from spotipy.oauth2 import SpotifyClientCredentials
 ################################################
 
 # ¿EN QUÉ MODO QUIERES UTILIZAR EL SCRIPT?
-modo_de_uso = 'desde_playlist' # 'desde_excel' o 'desde_playlist'
+modo_de_uso = 'desde_playlist' # 'desde_excel', 'desde_excel_sin_año' o 'desde_playlist'
 
 # SEGÚN MODO, ELIGE EL INPUT DE DATOS
-playlist_url = 'https://open.spotify.com/playlist/5TOMoP3KEWtRASGeFsksUY?si=fbb64fcd02d5468a'
-excel_url = '/Users/aitor/Desktop/hitster/modo_excel/import_en_excel.xlsx'
+playlist_url = 'https://open.spotify.com/playlist/34YN7RrEkxhtfMJuqCBkhk?si=142760cead8b4007'
+excel_url = '/Users/aitor/Desktop/hitster/archivos_para_importar/import_en_excel.xlsx'
 
 # Ruta para guardar los archivos finales de PPT y EXCEL
-pptx_path = "/Users/aitor/Desktop/hitster/archivos_generados/tarjetas_a_imprimir.pptx"
-xlsx_path = "/Users/aitor/Desktop/hitster/archivos_generados/listado_canciones.xlsx"
+pptx_path = "/Users/aitor/Desktop/hitster/resultados_exportados/tarjetas_a_imprimir.pptx"
+xlsx_path = "/Users/aitor/Desktop/hitster/resultados_exportados/listado_canciones.xlsx"
 
 # Datos personales del usuario para el uso de Spotify
 client_id = 'b0ce861df37447f5965272f0f620c964'
@@ -130,6 +130,55 @@ def obtener_info_canciones_desde_excel(ruta_archivo):
     return df_resultado
 
 
+
+# FUNCIÓN C:
+def obtener_info_canciones_desde_excel2(ruta_archivo):
+    # Cargar datos del archivo Excel
+    df_urls = pd.read_excel(ruta_archivo)
+    
+    # Configurar credenciales para la API de Spotify
+    client_id = 'tu_client_id'
+    client_secret = 'tu_client_secret'
+    client_credentials_manager = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
+    sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
+    
+    # Lista para almacenar los datos de las canciones
+    canciones_info = []
+    
+    # Número total de canciones
+    total_canciones = len(df_urls)
+    
+    # Iterar sobre las filas del DataFrame para procesar cada URL y el año correspondiente
+    for posicion, fila in df_urls.iterrows():
+        url = fila['URL']
+        year = fila['Año']  # Asumiendo que la columna se llama 'Año'
+        track_id = url.split("/")[-1]
+        try:
+            # Obtener datos de la canción
+            track = sp.track(track_id)
+            track_name = track['name']
+            track_url = track['external_urls']['spotify']
+            artist_names = ', '.join([artist['name'] for artist in track['artists']])
+            proporcion = f'{posicion + 1} / {total_canciones}'
+            
+            # Añadir la información a la lista
+            canciones_info.append({
+                'URL': track_url,
+                'Titulo': track_name,
+                'Artista': artist_names,
+                'Año': year,  # Utilizar el año del Excel directamente
+                'Pos': posicion + 1,
+                'PosRel': proporcion
+            })
+        except Exception as e:
+            print(f"No se pudo obtener información para la URL: {url}. Error: {str(e)}")
+    
+    # Crear un DataFrame con la información recolectada
+    df_resultado = pd.DataFrame(canciones_info)
+    
+    return df_resultado
+
+
 ###########################################################################################
 ### APLICACIÓN DE UNO DE LOS DOS MODOS PARA OBTENER LOS DATOS DE LAS CANCIONES EN DF ######
 ###########################################################################################
@@ -137,6 +186,9 @@ def obtener_info_canciones_desde_excel(ruta_archivo):
 
 if modo_de_uso == 'desde_excel': 
     info_canciones = obtener_info_canciones_desde_excel(excel_url)
+    print(info_canciones)
+elif modo_de_uso == 'desde_excel_sin_año': 
+    info_canciones = obtener_info_canciones_desde_excel2(excel_url)
     print(info_canciones)
 elif modo_de_uso == 'desde_playlist':
     info_canciones_lista = obtener_info_playlist(playlist_url)
