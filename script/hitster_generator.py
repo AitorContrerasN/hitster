@@ -193,7 +193,7 @@ for index, row in info_canciones.iterrows():
     # Añadir diapositiva para el QR, centrado
     slide_qr = prs.slides.add_slide(prs.slide_layouts[5])
     qr_left = (prs.slide_width - qr_size) / 2
-    qr_top = (prs.slide_height - qr_size) / 4  # Posicionamos el QR en la parte superior
+    qr_top = (prs.slide_height - qr_size) / 2  # Centrado vertical
     slide_qr.shapes.add_picture(bio, qr_left, qr_top, width=qr_size, height=qr_size)
 
     # Añadir diapositiva para los datos, centrado
