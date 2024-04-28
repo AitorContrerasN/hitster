@@ -39,6 +39,7 @@ def obtener_info_playlist(url):
     results = sp.playlist_tracks(playlist_id)
     
     canciones = []
+    posicion = 1  # Iniciar contador para la posición de la canción
     
     for item in results['items']:
         track = item['track']
@@ -52,16 +53,20 @@ def obtener_info_playlist(url):
             'URL': url_cancion,
             'Título': titulo,
             'Artistas': artistas,
-            'Año de publicación': año_publicacion
+            'Año de publicación': año_publicacion,
+            'Posición': posicion  # Añadir posición actual de la canción
         })
+        posicion += 1  # Actualizar posición para la próxima canción
     
     return canciones
+
 
 # Usa la función con una URL de una lista de reproducción de Spotify
 info_canciones = obtener_info_playlist(playlist_url)
 
 df = pd.DataFrame(info_canciones)
-df.rename(columns={'Artistas': 'Artista', 'Año de publicación': 'Año'}, inplace=True)
+df.rename(columns={'Artistas': 'Artista', 'Año de publicación': 'Año', 'Posición': 'Pos'}, inplace=True)
+print(df)
 
 # Crear una presentación de PowerPoint
 prs = Presentation()
