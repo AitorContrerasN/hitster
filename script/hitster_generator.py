@@ -38,6 +38,7 @@ def obtener_info_playlist(url):
     playlist_id = url.split("/")[-1].split("?")[0]
     results = sp.playlist_tracks(playlist_id)
     
+    total_canciones = len(results['items'])  # Total de canciones en la playlist
     canciones = []
     posicion = 1  # Iniciar contador para la posición de la canción
     
@@ -49,12 +50,16 @@ def obtener_info_playlist(url):
         album = track['album']
         año_publicacion = album['release_date'][:4]  # Asume formato YYYY-MM-DD
         
+        # Calcular la proporción de la posición respecto al total de canciones
+        proporcion = f'{posicion} / {total_canciones}'
+        
         canciones.append({
             'URL': url_cancion,
             'Título': titulo,
             'Artistas': artistas,
             'Año de publicación': año_publicacion,
-            'Posición': posicion  # Añadir posición actual de la canción
+            'Posición': posicion,  # Posición actual de la canción
+            'Proporción': proporcion  # Formato 'POSICION / TOTAL CANCIONES' como string
         })
         posicion += 1  # Actualizar posición para la próxima canción
     
@@ -149,6 +154,9 @@ for index, row in df.iterrows():
     p.font.bold = True
     p.alignment = PP_ALIGN.CENTER
 
+
+# Export DataFrame to an Excel file
+df.to_excel(pptx_path.replace('.pptx', '.xlsx'), index=False)
 # Guardar la presentación
 prs.save(pptx_path)
 print(f"PowerPoint guardado en {pptx_path} con éxito güey!")
