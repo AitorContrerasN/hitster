@@ -21,7 +21,7 @@ from spotipy.oauth2 import SpotifyClientCredentials
 ################################################
 
 # ¿EN QUÉ MODO QUIERES UTILIZAR EL SCRIPT?
-modo_de_uso = 'desde_playlist' # 'desde_excel', 'desde_excel_sin_año' o 'desde_playlist'
+modo_de_uso = 'desde_excel_completo' # 'desde_excel', 'desde_excel_sin_año', 'desde_excel_completo' o 'desde_playlist'
 
 # SEGÚN MODO, ELIGE EL INPUT DE DATOS
 playlist_url = 'https://open.spotify.com/playlist/34YN7RrEkxhtfMJuqCBkhk?si=142760cead8b4007'
@@ -135,6 +135,8 @@ def obtener_info_canciones_desde_excel(ruta_archivo):
 def obtener_info_canciones_desde_excel2(ruta_archivo):
     # Cargar datos del archivo Excel
     df_urls = pd.read_excel(ruta_archivo)
+    print(df_urls)
+    print('df_urls')
     
     # Configurar credenciales para la API de Spotify
     client_id = 'tu_client_id'
@@ -144,19 +146,33 @@ def obtener_info_canciones_desde_excel2(ruta_archivo):
     
     # Lista para almacenar los datos de las canciones
     canciones_info = []
+    print(canciones_info)
+    print('canciones_info')
     
     # Número total de canciones
     total_canciones = len(df_urls)
+    print(total_canciones)
+    print('total_canciones')
     
     # Iterar sobre las filas del DataFrame para procesar cada URL y el año correspondiente
     for posicion, fila in df_urls.iterrows():
         url = fila['URL']
+        print(url)
+        print('url')
         year = fila['Año']  # Asumiendo que la columna se llama 'Año'
+        print(year)
+        print('year')
         track_id = url.split("/")[-1]
+        print(track_id)
+        print('track_id')
         try:
             # Obtener datos de la canción
             track = sp.track(track_id)
+            print(track)
+            print('track')
             track_name = track['name']
+            print(track_name)
+            print('track_name')
             track_url = track['external_urls']['spotify']
             artist_names = ', '.join([artist['name'] for artist in track['artists']])
             proporcion = f'{posicion + 1} / {total_canciones}'
@@ -179,6 +195,12 @@ def obtener_info_canciones_desde_excel2(ruta_archivo):
     return df_resultado
 
 
+# FUNCIÓN C:
+def obtener_info_canciones_desde_excel_completo(ruta_archivo):
+    info_canciones = pd.read_excel(ruta_archivo)
+    return info_canciones
+
+
 ###########################################################################################
 ### APLICACIÓN DE UNO DE LOS DOS MODOS PARA OBTENER LOS DATOS DE LAS CANCIONES EN DF ######
 ###########################################################################################
@@ -193,6 +215,9 @@ elif modo_de_uso == 'desde_excel_sin_año':
 elif modo_de_uso == 'desde_playlist':
     info_canciones_lista = obtener_info_playlist(playlist_url)
     info_canciones = pd.DataFrame(info_canciones_lista)
+    print(info_canciones)
+elif modo_de_uso == 'desde_excel_completo':
+    info_canciones = obtener_info_canciones_desde_excel_completo(excel_url)
     print(info_canciones)
 else:
     print("Error")
